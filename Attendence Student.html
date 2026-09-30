@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MIKIDS ប្រព័ន្ធគ្រប់គ្រងសិស្ស</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Khmer OS Battambang', 'Khmer OS Siemreap', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #2e2f42; min-height: 100vh; padding: 15px; }
+        .main-container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .main-header { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); color: white; padding: 25px 30px; text-align: center; }
+        .main-header h1 { font-size: 28px; margin-bottom: 10px; }
+        .main-header p { font-size: 16px; opacity: 0.9; }
+        .main-tabs { display: flex; background: #f8f9fc; border-bottom: 3px solid #e3e6f0; }
+        .main-tab { flex: 1; padding: 20px; text-align: center; cursor: pointer; font-size: 18px; font-weight: bold; color: #5a5c69; background: #f8f9fc; border: none; transition: all 0.3s; position: relative; font-family: inherit; }
+        .main-tab:hover { background: #eaecf4; color: #4e73df; }
+        .main-tab.active { background: white; color: #4e73df; }
+        .main-tab.active::after { content: ''; position: absolute; bottom: -3px; left: 0; right: 0; height: 3px; background: #4e73df; }
+        .main-tab-content { display: none; }
+        .main-tab-content.active { display: block; }
+        .attendance-container { display: flex; height: calc(100vh - 250px); min-height: 600px; }
+        .sidebar { width: 320px; background: #f8f9fc; padding: 20px; border-right: 1px solid #e3e6f0; overflow-y: auto; }
+        .section-title { font-weight: bold; color: #4e73df; margin: 15px 0 10px 0; padding-bottom: 8px; border-bottom: 2px solid #e3e6f0; font-size: 16px; }
+        .date-input { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #d1d3e2; margin-bottom: 15px; font-family: inherit; font-size: 15px; }
+        .class-list { display: flex; flex-direction: column; gap: 8px; }
+        .class-item { padding: 12px; background: white; color: #2e2f42; border: 2px solid #d1d3e2; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.2s; }
+        .class-item:hover { background: #eaecf4; border-color: #4e73df; color: #2e2f42; }
+        .class-item.active { background: #4e73df; color: white; border-color: #4e73df; }
+        .content-area { flex: 1; padding: 25px; display: flex; flex-direction: column; overflow: hidden; }
+        .class-title { margin-bottom: 20px; color: #4e73df; font-size: 22px; font-weight: bold; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .summary-box { text-align: center; padding: 15px; background: #f8f9fc; border-radius: 10px; border: 2px solid #e3e6f0; }
+        .summary-box .label { font-size: 14px; color: #5a5c69; margin-bottom: 8px; }
+        .summary-box .count { font-size: 28px; font-weight: bold; }
+        .list-header { background: #f8f9fc; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #e3e6f0; font-weight: bold; color: #5a5c69; font-size: 16px; }
+        #studentContainer { flex: 1; overflow-y: auto; padding-right: 10px; }
+        .student-card { display: flex; align-items: center; padding: 15px; background: #fff; border: 2px solid #e3e6f0; border-radius: 10px; margin-bottom: 10px; transition: all 0.2s; }
+        .student-card:hover { border-color: #4e73df; box-shadow: 0 4px 10px rgba(78,115,223,0.1); }
+        .student-id { font-weight: bold; color: #4e73df; width: 50px; font-size: 16px; }
+        .student-info { flex: 1; margin-left: 15px; }
+        .student-name { font-weight: bold; font-size: 16px; color: #2e59d9; margin-bottom: 4px; }
+        .student-sex { font-size: 13px; color: #858796; }
+        .attendance-btns { display: flex; gap: 10px; }
+        .btn-att { width: 50px; height: 50px; border: 2px solid #d1d3e2; border-radius: 10px; cursor: pointer; font-weight: bold; background: #f8f9fc; font-size: 18px; transition: all 0.2s; }
+        .btn-att:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn-att.present.active { background: #1cc88a !important; color: white; border-color: #1cc88a; }
+        .btn-att.permission.active { background: #f6c23e !important; color: white; border-color: #f6c23e; }
+        .btn-att.absent.active { background: #e74a3b !important; color: white; border-color: #e74a3b; }
+        .btn-main { padding: 15px 20px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; transition: all 0.2s; font-size: 16px; font-family: inherit; }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-telegram { background: #0088cc; }
+        .btn-excel { background: #28a745; }
+        .stats-container { padding: 30px; max-height: calc(100vh - 250px); overflow-y: auto; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 2px solid #e0e0e0; }
+        .tab { padding: 12px 24px; background: none; border: none; font-size: 16px; font-family: inherit; cursor: pointer; color: #666; transition: all 0.3s; border-bottom: 3px solid transparent; }
+        .tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab:hover { color: #667eea; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-section { background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        .form-section h3 { color: #667eea; margin-bottom: 20px; font-size: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 8px; color: #333; font-weight: 500; font-size: 15px; }
+        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; font-size: 15px; transition: border-color 0.3s; resize: vertical; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .btn-secondary { background: #6c757d; }
+        .btn-danger { background: #dc3545; }
+        .btn-sync { background: #17a2b8; }
+        .report-card { background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; }
+        .report-card:hover { border-color: #667eea; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .report-title { font-size: 18px; font-weight: bold; color: #333; }
+        .report-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stat-item { background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 4px solid #667eea; }
+        .stat-label { font-size: 13px; color: #666; margin-bottom: 5px; }
+        .stat-value { font-size: 18px; font-weight: bold; color: #333; }
+        .action-buttons { margin-top: 15px; display: flex; gap: 10px; }
+        .btn-small { padding: 8px 16px; font-size: 14px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+        .summary-grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .summary-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px; text-align: center; }
+        .summary-card h4 { font-size: 16px; margin-bottom: 10px; opacity: 0.9; }
+        .summary-card .number { font-size: 36px; font-weight: bold; }
+        .student-entry { background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .student-entry-info { flex: 1; }
+        .student-entry-name { font-weight: bold; color: #333; margin-bottom: 4px; }
+        .student-entry-details { font-size: 13px; color: #666; }
+        .btn-remove { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-family: inherit; }
+        .btn-remove:hover { background: #c82333; }
+        .sync-banner { background: #e8f4f8; border: 2px solid #17a2b8; border-radius: 10px; padding: 15px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+        .sync-banner span { color: #0c5460; font-size: 15px; }
+        .save-indicator { display:inline-block; margin-left:10px; font-size:13px; color:#1cc88a; opacity:0; transition:opacity 0.5s; }
+        .save-indicator.show { opacity:1; }
+        .female-inline-row { display:flex; gap:12px; align-items:center; }
+        .female-inline-row input.main-input { flex:1; min-width:0; padding:12px; border:2px solid #e0e0e0; border-radius:8px; font-family:inherit; font-size:15px; }
+        .female-inline-row input.main-input:focus { outline:none; border-color:#667eea; }
+        .female-inline-badge { display:flex; align-items:center; gap:6px; white-space:nowrap; background:#fff0f6; border:2px solid #e91e8c44; border-radius:8px; padding:8px 12px; }
+        .female-inline-badge label { color:#c2185b; font-size:13px; font-weight:600; margin:0; white-space:nowrap; }
+        .female-inline-badge input { width:70px; padding:4px 8px; border:1.5px solid #e91e8c66; border-radius:6px; font-family:inherit; font-size:14px; color:#c2185b; font-weight:bold; text-align:center; }
+        .female-inline-badge input:focus { outline:none; border-color:#c2185b; }
+        @media (max-width: 768px) {
+            .attendance-container { flex-direction: column; height: auto; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e3e6f0; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: 1fr; }
+            .report-stats { grid-template-columns: 1fr; }
+            .main-tabs { flex-direction: column; }
+            .female-inline-row { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="main-header">
+        <h1>🏫 MIKIDS ប្រព័ន្ធគ្រប់គ្រងសិស្ស</h1>
+        <p>ប្រព័ន្ធគ្រប់គ្រងវត្តមាន និងរបាយការណ៍ស្ថិតិសិស្ស</p>
+    </div>
+    <div class="main-tabs">
+        <button class="main-tab active" onclick="switchMainTab(event,'attendance')">📋 វត្តមានសិស្ស</button>
+        <button class="main-tab" onclick="switchMainTab(event,'statistics')">📊 របាយការណ៍ស្ថិតិ</button>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="attendance-system" class="main-tab-content active">
+        <div class="attendance-container">
+            <div class="sidebar">
+                <p class="section-title">ជ្រើសរើសកាលបរិច្ឆេទ</p>
+                <input type="date" id="attDate" class="date-input">
+                <p class="section-title">បញ្ជីថ្នាក់</p>
+                <div id="classList" class="class-list"></div>
+            </div>
+            <div class="content-area">
+                <h3 id="displayClass" class="class-title">ជ្រើសរើសថ្នាក់</h3>
+                <div class="summary-grid">
+                    <div class="summary-box"><div class="label">មក (✔️)</div><div class="count" id="cP" style="color:#1cc88a;">0</div></div>
+                    <div class="summary-box"><div class="label">ច្បាប់ (P)</div><div class="count" id="cL" style="color:#f6c23e;">0</div></div>
+                    <div class="summary-box"><div class="label">អវត្តមាន (A)</div><div class="count" id="cA" style="color:#e74a3b;">0</div></div>
+                    <div class="summary-box"><div class="label">សរុប</div><div class="count" id="cT">0</div></div>
+                </div>
+                <div class="list-header">បញ្ជីសិស្ស</div>
+                <div id="studentContainer"></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:20px;">
+                    <button class="btn-main" style="background:#e67e22;" onclick="sendMorningSummaryToTelegram()">🌅 សរុបវត្តមានព្រឹក → Telegram</button>
+                    <button class="btn-main" style="background:#8e44ad;" onclick="sendAfternoonSummaryToTelegram()">🌆 សរុបវត្តមានរសៀល → Telegram</button>
+                    <button class="btn-main btn-telegram" onclick="sendAttendanceToTelegram()">📤 ផ្ញើវត្តមានទៅថ្នាក់នីមួយៗ → Telegram</button>
+                    <button class="btn-main btn-excel" onclick="exportToExcel()">📥 រក្សាទុកជា Excel</button>
+                    <button class="btn-main" style="background:#607d8b;grid-column:1/-1;" onclick="findChatIds()">🔍 រកលេខ Chat ID ត្រឹមត្រូវ (បើផ្ញើទៅ Telegram មិនចេញ)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATISTICS -->
+    <div id="statistics-system" class="main-tab-content">
+        <div class="stats-container">
+            <div class="tabs">
+                <button class="tab active" onclick="switchStatsTab(event,'create')">បង្កើតរបាយការណ៍ថ្មី</button>
+                <button class="tab" onclick="switchStatsTab(event,'view')">មើលរបាយការណ៍</button>
+                <button class="tab" onclick="switchStatsTab(event,'summary')">សង្ខេប</button>
+            </div>
+
+            <div id="create-tab" class="tab-content active">
+                <div class="sync-banner">
+                    <span>💾 ទិន្នន័យក្នុង form នេះ <b>ត្រូវបានរក្សាទុកដោយស្វ័យប្រវត្តិ</b> រាល់ពេលបំពេញ។ ចូលចេញ tab ណាក៏ទិន្នន័យនៅដដែល។</span>
+                    <button class="btn-main btn-sync" style="white-space:nowrap;padding:10px 18px;font-size:15px;" onclick="manualSyncAttendance()">🔄 Sync វត្តមាន</button>
+                </div>
+
+                <form id="reportForm" onsubmit="return false;">
+                    <div class="form-section">
+                        <h3>ព័ត៌មានរបាយការណ៍</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>ថ្ងៃខែឆ្នាំ *</label>
+                                <input type="date" id="reportDate" required oninput="saveFormState()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>ស្ថិតិសិស្សសរុប</h3>
+                        <div class="form-grid">
+                            <div class="form-group" style="grid-column:1/-1;">
+                                <label>សិស្សសរុបទាំងព្រឹកនិងរសៀល (នាក់) *</label>
+                                <div style="display:flex;gap:12px;align-items:center;">
+                                    <input type="number" id="totalStudents" min="0" required style="flex:1;min-width:0;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-family:inherit;font-size:15px;" oninput="saveFormState()">
+                                    <span style="white-space:nowrap;color:#5a5c69;font-size:15px;">(ស្រី <span id="totalFemaleDisplay">0</span> នាក់)</span>
+                                </div>
+                                <input type="number" id="totalFemaleStudents" min="0" required style="display:none;" oninput="saveFormState();syncFemaleDisplay()">
+                            </div>
+                            <div class="form-group">
+                                <label>សិស្សរៀនពេញម៉ោង (នាក់)</label>
+                                <input type="number" id="fullTimeStudents" min="0" value="0" oninput="saveFormState()">
+                            </div>
+                            <input type="number" id="fullTimeFemale" min="0" value="0" style="display:none;">
+                            <div class="form-group">
+                                <label>សិស្សតែកម្មវិធីភាសាខ្មែរសរុប (នាក់)</label>
+                                <input type="number" id="khmerOnlyTotal" min="0" value="0" oninput="saveFormState()">
+                            </div>
+                            <input type="number" id="khmerOnlyFemale" min="0" value="0" style="display:none;">
+                            <div class="form-group">
+                                <label>សិស្សតែកម្មវិធីភាសាអង់គ្លេសសរុប (នាក់)</label>
+                                <input type="number" id="englishOnlyTotal" min="0" value="0" oninput="saveFormState()">
+                            </div>
+                            <input type="number" id="englishOnlyFemale" min="0" value="0" style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>សិស្សសាកល្បង</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>សិស្សសាកល្បងសរុប (នាក់)</label>
+                                <input type="number" id="trialStudentsTotal" min="0" value="0" onchange="generateTrialStudentFields();saveFormState()">
+                            </div>
+                            <input type="number" id="trialFemale" min="0" value="0" style="display:none;">
+                            <div class="form-group">
+                                <label>កម្មវិធីសិក្សា</label>
+                                <select id="trialProgram" onchange="saveFormState()">
+                                    <option value="">-- ជ្រើសរើស --</option>
+                                    <option value="full">ពេញកម្មវិធីសិក្សា</option>
+                                    <option value="khmer">តែកម្មវិធីសិក្សាភាសាខ្មែរ</option>
+                                    <option value="english">តែកម្មវិធីសិក្សាភាសាអង់គ្លេស</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>ថ្ងៃខែឆ្នាំសាកល្បង</label>
+                                <input type="date" id="trialDate" oninput="saveFormState()">
+                            </div>
+                            <div class="form-group">
+                                <label>រយៈពេលសាកល្បង</label>
+                                <input type="text" id="trialDuration" placeholder="ឧ. ១សប្តាហ៍, ៣ថ្ងៃ" oninput="saveFormState()">
+                            </div>
+                        </div>
+                        <div id="trialStudentsContainer" style="margin-top:20px;"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>សិស្សទទួលការមើលថែរ</h3>
+                        <div class="form-grid">
+                            <div class="form-group" style="grid-column:1/-1;">
+                                <label>សិស្សទទួលការមើលថែរសរុប (នាក់)</label>
+                                <div class="female-inline-row">
+                                    <input type="number" id="careServiceTotal" class="main-input" min="0" value="0" oninput="saveFormState()">
+                                    <div class="female-inline-badge">
+                                        <label for="careServiceFemale">👧 ស្រី</label>
+                                        <input type="number" id="careServiceFemale" min="0" value="0" oninput="saveFormState()" placeholder="0">
+                                        <span style="color:#c2185b;font-size:13px;font-weight:600;">នាក់</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <h4 style="color:#667eea;margin:20px 0 10px 0;">សិស្សទទួលការមើលថែរថ្មី</h4>
+                        <div id="newCareStudentsList"></div>
+                        <div class="form-grid" style="margin-top:15px;">
+                            <div class="form-group"><label>ជ្រើសរើសថ្នាក់</label><select id="newCareStudentClass" onchange="updateNewCareStudentList()"><option value="">-- ជ្រើសរើសថ្នាក់ --</option></select></div>
+                            <div class="form-group"><label>ជ្រើសរើសសិស្ស</label><select id="newCareStudentSelect"><option value="">-- ជ្រើសរើសសិស្ស --</option></select></div>
+                            <div class="form-group"><label>កម្មវិធីសិក្សា</label><select id="newCareStudentProgram"><option value="">-- ជ្រើសរើស --</option><option value="full">ពេញកម្មវិធីសិក្សា</option><option value="khmer">តែភាសាខ្មែរ</option><option value="english">តែភាសាអង់គ្លេស</option></select></div>
+                            <div class="form-group"><label>កាលបរិច្ឆេទចាប់ផ្តើម</label><input type="date" id="newCareStartDate"></div>
+                        </div>
+                        <button type="button" class="btn-main btn-primary" onclick="addNewCareStudent()" style="margin-top:10px;">+ បន្ថែមសិស្សទទួលការមើលថែរថ្មី</button>
+                        <h4 style="color:#e74a3b;margin:20px 0 10px 0;">សិស្សឈប់ទទួលការមើលថែរ</h4>
+                        <div id="stopCareStudentsList"></div>
+                        <div class="form-grid" style="margin-top:15px;">
+                            <div class="form-group"><label>ជ្រើសរើសថ្នាក់</label><select id="stopCareStudentClass" onchange="updateStopCareStudentList()"><option value="">-- ជ្រើសរើសថ្នាក់ --</option></select></div>
+                            <div class="form-group"><label>ជ្រើសរើសសិស្ស</label><select id="stopCareStudentSelect"><option value="">-- ជ្រើសរើសសិស្ស --</option></select></div>
+                            <div class="form-group"><label>កាលបរិច្ឆេទឈប់</label><input type="date" id="stopCareDate"></div>
+                            <div class="form-group"><label>មូលហេតុឈប់</label><input type="text" id="stopCareReason" placeholder="បញ្ចូលមូលហេតុ"></div>
+                        </div>
+                        <button type="button" class="btn-main btn-danger" onclick="addStopCareStudent()" style="margin-top:10px;">+ បន្ថែមសិស្សឈប់ទទួលការមើលថែរ</button>
+                    </div>
+
+                    <input type="number" id="morningTotal" min="0" value="0" style="display:none;">
+                    <input type="number" id="morningFemale" min="0" value="0" style="display:none;">
+                    <input type="number" id="morningAbsentTotal" min="0" value="0" style="display:none;">
+                    <input type="number" id="morningAbsentFemale" min="0" value="0" style="display:none;">
+                    <input type="number" id="morningParentPermission" min="0" value="0" style="display:none;">
+                    <input type="number" id="morningParentPermissionFemale" min="0" value="0" style="display:none;">
+                    <input type="number" id="morningSchoolContact" min="0" value="0" style="display:none;">
+                    <input type="number" id="morningSchoolContactFemale" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonTotal" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonFemale" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonAbsentTotal" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonAbsentFemale" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonParentPermission" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonParentPermissionFemale" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonSchoolContact" min="0" value="0" style="display:none;">
+                    <input type="number" id="afternoonSchoolContactFemale" min="0" value="0" style="display:none;">
+
+                    <div class="form-section">
+                        <h3>សិស្សចូលថ្មី</h3>
+                        <div id="newStudentsList"></div>
+                        <div class="form-grid" style="margin-top:15px;">
+                            <div class="form-group"><label>ជ្រើសរើសថ្នាក់</label><select id="newStudentClass"><option value="">-- ជ្រើសរើសថ្នាក់ --</option></select></div>
+                            <div class="form-group"><label>ឈ្មោះសិស្ស</label><input type="text" id="newStudentName" placeholder="បញ្ចូលឈ្មោះ"></div>
+                            <div class="form-group"><label>ភេទ</label><select id="newStudentGender"><option value="">-- ជ្រើសរើស --</option><option value="M">ប្រុស</option><option value="F">ស្រី</option></select></div>
+                            <div class="form-group"><label>កាលបរិច្ឆេទចូល</label><input type="date" id="newStudentDate"></div>
+                            <div class="form-group"><label>កម្មវិធីសិក្សា</label><select id="newStudentProgram"><option value="">-- ជ្រើសរើស --</option><option value="full">ពេញកម្មវិធីសិក្សា</option><option value="khmer">តែភាសាខ្មែរ</option><option value="english">តែភាសាអង់គ្លេស</option></select></div>
+                            <div class="form-group"><label>រយៈពេលបង់ថ្លៃសិក្សា</label><select id="newStudentPaymentDuration" onchange="document.getElementById('customPaymentField').style.display=this.value==='custom'?'block':'none'"><option value="">-- ជ្រើសរើស --</option><option value="1month">១ខែ</option><option value="3months">៣ខែ</option><option value="6months">៦ខែ</option><option value="1year">១ឆ្នាំ</option><option value="custom">ផ្សេងៗ</option></select></div>
+                            <div class="form-group" id="customPaymentField" style="display:none;"><label>បញ្ជាក់រយៈពេល</label><input type="text" id="customPaymentDuration" placeholder="ឧ. ២ខែ, ៩ខែ"></div>
+                        </div>
+                        <button type="button" class="btn-main btn-primary" onclick="addNewStudent()" style="margin-top:10px;">+ បន្ថែមសិស្សថ្មី</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>សិស្សឈប់</h3>
+                        <div id="leftStudentsList"></div>
+                        <div class="form-grid" style="margin-top:15px;">
+                            <div class="form-group"><label>ជ្រើសរើសថ្នាក់</label><select id="leftStudentClass" onchange="updateLeftStudentList()"><option value="">-- ជ្រើសរើសថ្នាក់ --</option></select></div>
+                            <div class="form-group"><label>ជ្រើសរើសសិស្ស</label><select id="leftStudentSelect"><option value="">-- ជ្រើសរើសសិស្ស --</option></select></div>
+                            <div class="form-group"><label>កាលបរិច្ឆេទឈប់</label><input type="date" id="leftStudentDate"></div>
+                            <div class="form-group"><label>មូលហេតុឈប់</label><input type="text" id="leftReason" placeholder="បញ្ចូលមូលហេតុ"></div>
+                        </div>
+                        <button type="button" class="btn-main btn-danger" onclick="addLeftStudent()" style="margin-top:10px;">+ បន្ថែមសិស្សឈប់</button>
+                    </div>
+
+                    <div style="display:flex;gap:15px;flex-wrap:wrap;align-items:center;">
+                        <button type="button" class="btn-main btn-primary" onclick="submitReport()">រក្សាទុករបាយការណ៍</button>
+                        <button type="button" class="btn-main btn-secondary" onclick="resetReportForm()">កំណត់ឡើងវិញ</button>
+                        <span id="saveIndicator" class="save-indicator">✅ រក្សាទុករួច</span>
+                    </div>
+                </form>
+            </div>
+
+            <div id="view-tab" class="tab-content"><div id="reportsList"></div></div>
+            <div id="summary-tab" class="tab-content"><div id="summaryContent"></div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ========== STUDENT DATA ==========
+const studentData = {
+  'ថ្នាក់មត្តេយ្យកម្រិតមធ្យម(ព្រឹក)':[
+    {id:'147',name:'សុភក្រ វីរបុត្រ',sex:'M'},{id:'198',name:'យ៉ាន់ សៀវលីញ',sex:'F'},
+    {id:'160',name:'ថូ សិទ្ធីយូណា',sex:'F'},
+    {id:'000',name:'សុីម សរឧត្តម',sex:'M'},{id:'163',name:'អេង លីឆេង',sex:'M'},
+    {id:'000',name:'វ៉េត នីរីតា',sex:'F'},{id:'211',name:'លួត ស្រីពេជ្រ',sex:'F'},
+    {id:'147',name:'សុភក្រ វីរបុត្រ',sex:'M'}
+  ],
+  'ថ្នាក់មត្តេយ្យកម្រិតមធ្យម(រសៀល)':[
+   {id:'188',name:'សាយ សុខហេង',sex:'M'},
+    {id:'181',name:'ឈន ចេស្ដា',sex:'M'},
+    {id:'177',name:'វាសនា ពេជ្រសុម៉ាលី',sex:'F'}
+  ],
+  'ថ្នាក់មត្តេយ្យកម្រិតខ្ពស់(ព្រឹក)':[
+    {id:'165',name:'សុផល ម៉េងហួរ',sex:'M'},
+    {id:'64',name:'ឃុន ទេពង្ស',sex:'M'},{id:'121',name:'លន វេស្សភូ',sex:'M'},
+    {id:'128',name:'ពិសិទ្អ ច័ន្ទវឌ្ឃនា',sex:'M'},{id:'141',name:'ថូ សិទ្ធិយូណា',sex:'F'},
+    {id:'132',name:'សុ បញ្ញា មុនិរាជ',sex:'M'},{id:'67',name:'ឈឿន ប៊ុនធឿនពុទ្ធិ',sex:'M'},
+    {id:'173',name:'សាន្ត លីប៉េង',sex:'M'},{id:'163',name:'អេង លីឆេង',sex:'M'},
+    {id:'179',name:'ចន្ថា វឌ្ឍនា',sex:'M'},{id:'162',name:'យ៉ាន់ សុខឡេង',sex:'M'}
+  ],
+  'ថ្នាក់មត្តេយ្យកម្រិតខ្ពស់(រសៀល)':[
+    {id:'137',name:'សឿន ចាន់សុមេធា',sex:'F'},
+   {id:'139',name:'ហ៊ឺម ម៉ីអ៊ិ',sex:'M'},{id:'146',name:'វីរៈ សិទ្ធិការ្យ',sex:'F'},
+    {id:'102',name:'សំណាង វីរៈបុត្រ',sex:'M'},{id:'67',name:'ឈឿន ប៊ុនធឿនពុទ្ធិ',sex:'M'},
+    {id:'87',name:'អ៊ុំ រតនាសិទ្ធីការ',sex:'F'},{id:'113',name:'ស៊ីម សិទ្ធីការ',sex:'F'},
+    {id:'164',name:'អ៊ូសុវណ្ណ វេហា',sex:'M'},{id:'177',name:'តាំង ហ៊ួយលីន',sex:'F'},
+    {id:'165',name:'លឹម លីម៉េងគ័ង្គ',sex:'M'} 
+  ],
+  'ថ្នាក់ទី១(ព្រឹក)':[
+    {id:'101',name:'ឈុំ វីរ់សិទ្ធ',sex:'M'},
+    {id:'65',name:'និត សុធារ៉ា',sex:'M'},{id:'62',name:'រិទ្ធី ពិស្សុតសុក្រឹត',sex:'M'},
+    {id:'117',name:'ហ៊ុន រាណ្ណជេណស្ដា',sex:'M'},
+    {id:'49',name:'ងិន ទៀនវិន',sex:'M'},{id:'107',name:'សុភក្រ័ វរៈសិទ្ធ',sex:'M'},
+   {id:'1',name:'ប៊ុនរីន ខេមរា',sex:'M'},
+    {id:'69',name:'ជាឡិច កូលីន',sex:'M'}
+  ],
+  'ថ្នាក់ទី១(រសៀល)':[
+     {id:'54',name:'យន់ លីហេង',sex:'M'},{id:'75',name:'វិន បញ្ញាវ័ន្ត',sex:'M'},
+    {id:'90',name:'សូ រស្មីពនិតា',sex:'F'},{id:'50',name:'សូយ រក្សា',sex:'M'},
+    {id:'176',name:'ប៉ឹម ម៉ីជូ',sex:'F'},{id:'85',name:'សេរី ចន្ទវឌ្ឍនា',sex:'M'},
+    {id:'161',name:'លីម ហ៊ីប៉',sex:'M'},{id:'55',name:'អ៊ា ជីងហ័រ',sex:'F'},
+    {id:'79',name:'មិត្ត ម៉េងហេង',sex:'M'},{id:'74',name:'ចាន់នី ស៊ូសាន់ណា',sex:'F'}
+    ],
+  'ថ្នាក់ទី២(ព្រឹក)':[
+    {id:'80',name:'ងួន បញ្ញាពុទ្ធិស័ក្តិ',sex:'M'}, {id:'95',name:'ចាវ វិនហាវ',sex:'M'},
+    {id:'165',name:'សុផល ម៉េងឆាយ',sex:'M'},
+    {id:'83',name:'ភឺន ថិរាយុ',sex:'M'}, {id:'69',name:'លី ឆាយឈ័ន',sex:'M'},
+     {id:'77',name:'វុឌ្ឍី ដាវីកា',sex:'F'},
+    {id:'92',name:'សុបញ្ញា សោម៉ា',sex:'F'},{id:'93',name:'អ៊ឹម រោចនា',sex:'F'}
+  ],
+  'ថ្នាក់ទី២(រសៀល)':[
+    {id:'85',name:'ដន សុភ័ណ្ឌម៉ូនីកា',sex:'F'},
+    {id:'91',name:'ប៊ូ សាធុការ',sex:'F'},{id:'70',name:'រ័ត្ន រ៉ាថេប',sex:'M'},
+    {id:'82',name:'សេន យ៉ាស្មីនណា',sex:'F'},{id:'78',name:'ស៊្រាង សៀវហ្វុង',sex:'F'},
+    {id:'74',name:'អឿន ពៅវល័ក្ខ',sex:'F'}
+  ],
+  'ថ្នាក់ទី៣ (ព្រឹក)':[
+    {id:'20',name:'ពៅ សុខចិន',sex:'M'},
+    {id:'17',name:'ណារ៉ា ហេងលី',sex:'M'},{id:'23',name:'សុខ សម្បត្តិ',sex:'M'},
+    {id:'22',name:'សុខ ដាលីស',sex:'F'},{id:'29',name:'ស្រស់ រីហ្សា',sex:'F'},
+    {id:'41',name:'ប៉ុន រីយ៉ា',sex:'F'},{id:'39',name:'ចន្ទ សុផាយ៉ាមេឃ',sex:'M'}
+    ],
+  'ថ្នាក់ទី៣(រសៀល)':[
+    {id:'31',name:'មិត្ត ម៉េងហួរ',sex:'M'},
+    {id:'14',name:'យស់ នរិន្ទ',sex:'M'},{id:'33',name:'វង់ ពុទ្ធិតា',sex:'F'},
+    {id:'62',name:'សូយ បញ្ញា',sex:'M'},{id:'40',name:'សេង សាណា',sex:'F'},
+    {id:'30',name:'ស៊នវីរៈ បញ្ញាទេពី',sex:'F'},{id:'27',name:'ប៊ូ តាម៉ា',sex:'M'},
+    {id:'65',name:'កែវ មុន្នីឧត្តម',sex:'M'},{id:'56',name:'វន្តវិន ថាណា',sex:'F'}
+  ],
+  'ថ្នាក់ទី ៤':[
+    {id:'9',name:'កែវ វីនសុឧត្តតារា',sex:'F'},{id:'28',name:'ឈុនតា រតនៈខុនដូ',sex:'F'},
+    {id:'10',name:'យ៉ា ពេជ្រម៉ូនីកា',sex:'F'},{id:'15',name:'លីម ពុទ្ធិរាជ',sex:'M'},
+    {id:'3',name:'ឡ ស៊ីវហ៊ួយ',sex:'F'},{id:'2',name:'ឡាយ មុនិចិន្ដា',sex:'F'}
+    ]
+  ,
+  'ថ្នាក់ទី ៥':[
+    {id:'1',name:'ឡាយ ភារ៉ាដាវីឌ',sex:'M'},{id:'42',name:'វង្ស មុនីកញ្ចនា',sex:'F'}
+  ],
+ 'ថ្នាក់ទី៦':[
+    {id:'43',name:'ពៅ សុនីតា',sex:'F'},{id:'4',name:'ឡ សុវណ្ណហាន់ណា',sex:'F'}
+],
+  'មត្ដេយ្យកម្រិតទាប(ព្រឹក)':[
+    {id:'000',name:'និត សុធារាជ',sex:'M'},{id:'000',name:'វិសាល សុព័ណ៍បេឡា',sex:'F'},
+    {id:'000',name:'អៀង ហាក់លីវីឆៃ',sex:'M'}, {id:'000',name:'ឌី រស្មីមុទិតា',sex:'F'},
+    {id:'000',name:'ទីវ សិទ្ធលីយ៉ា',sex:'F'}
+  ],
+  'មត្ដេយ្យកម្រិតទាប(រសៀល)':[
+    {id:'175',name:'គ្រី សុមន្នី',sex:'F'},{id:'000',name:'ហេង សុីងតឺ',sex:'M'},
+    {id:'210',name:'សុខ សុវណ្ណណេត',sex:'M'},
+    {id:'018',name:'រ៉ាត់ មាសពេជ្រមរកត',sex:'F'}
+  ],
+   'Found1 Morning':[{id:'000',name:'Vanna Sovannareach',sex:'M'},{id:'0000',name:'Uk Chanbaramy',sex:'F'},
+                     {id:'0157',name:'Duong Somethea',sex:'M'},{id:'0000',name:'Chhum Visoth',sex:'M'},
+                     {id:'0158',name:'Punlok Viraksith',sex:'M'},{id:'0172',name:'Reathana Sievle',sex:'F'},
+                     {id:'0174',name:'Vichika Munnitepey',sex:'F'},{id:'0185',name:'Yem Putthivong',sex:'M'},
+                     {id:'0171',name:'Song Siriboth',sex:'M'},{id:'0000',name:'Van Kanha',sex:'F'}],
+  'Found1 Evening':[{id:'0147',name:'Sopheak Virakboth',sex:'M'},
+                       {id:'0150',name:'Vet Nirita',sex:'F'},{id:'0000',name:'Piseth Chanvatthana',sex:'M'},{id:'0000',name:'Ten Ju Ei',sex:'F'}],
+  'Found2 Morning':[{id:'0000',name:'Chhang Xing Ai',sex:'F'},{id:'0144',name:'Heng Santipheap',sex:'M'},
+                    {id:'0000',name:'Um Ratthanasithika',sex:'F'},{id:'0149',name:'Thy SovannSethika',sex:'F'},
+                    {id:'0143',name:'Phon Sokheang',sex:'M'},{id:'0134',name:'Eap Lying',sex:'F'},
+                    {id:'0000',name:'Serey Chanvathana',sex:'M'},{id:'0000',name:'Hee Meying',sex:'F'},
+                    {id:'0000',name:'Chhany Susanna',sex:'F'},{id:'0182',name:'Tang Houylin',sex:'F'}],
+  'Found2 Afternoon':[{id:'0000',name:'Ngin Tiewen',sex:'M'},{id:'0000',name:'Bunrin Khemra',sex:'M'},
+                    {id:'0116',name:'Chhon Mengsin',sex:'M'},{id:'0000',name:'Sophal Menghour',sex:'M'},
+                    {id:'0145',name:'Chhay Pik Ei',sex:'F'},{id:'0125',name:'Panha Phetra',sex:'F'},
+                    {id:'0000',name:'Nith Sotheara',sex:'M'},{id:'0000',name:'Huy Vanna Chesda',sex:'M'},
+                    {id:'0159',name:'Thon Sivgxich',sex:'F'}],
+  'Nursery Morning':[{id:'0180',name:'Rat Pichmorakot',sex:'F'},
+                     {id:'0184',name:'Ho Liping',sex:'F'},{id:'0000',name:'Heng Sinter',sex:'M'}],
+  'Nursery Afternoon':[{id:'0000',name:'Seng Kimling',sex:'F'},
+                       {id:'0000',name:'Thnang Solita',sex:'F'},{id:'0000',name:'Thnang Somuny',sex:'F'},{id:'0000',name:'Chon Morakot',sex:'F'}],
+  'Level1 Morning':[{id:'0086',name:'Theng Mengly',sex:'M'},{id:'0000',name:'Sreang Seavfong',sex:'M'},
+                    {id:'0000',name:'Heng Meyyi',sex:'F'},{id:'0000',name:'Oeun Povvorleak',sex:'F'},
+                    {id:'0000',name:'Rath Sovannchannaka',sex:'M'},{id:'0070',name:'Rath Rathap',sex:'M'}],
+  'Level1 Afternoon':[{id:'0068',name:'Song Rithysak',sex:'M'},{id:'0000',name:'Pov Sokchen',sex:'M'},
+                      {id:'0000',name:'Im Rochaknea',sex:'F'},{id:'0000',name:'Ngoun Panhaputhysac',sex:'M'},
+                      {id:'0000',name:'Chea Lechkolin',sex:'M'},{id:'0000',name:'Nara Hengly',sex:'M'},
+                      {id:'0000',name:'Chhan Vireakseth',sex:'M'},{id:'0000',name:'Sok Sambath',sex:'M'},
+                      {id:'0000',name:'Sok Dalis',sex:'F'},{id:'0000',name:'Ly Chhay chhoin',sex:'M'},{id:'0000',name:'Horng Keovisoth',sex:'M'}],
+  'Level2':[{id:'0000',name:'Ork Oudom',sex:'M'},{id:'00',name:'Chan Sopha Yamekh',sex:'M'},
+             {id:'0000',name:'Nara Henglay',sex:'M'},{id:'0062',name:'Chhuk Chenlong',sex:'M'},
+             {id:'0000',name:'Lim Puthireach',sex:'M'},
+             {id:'0000',name:'Chhunta Rtthanak Condo',sex:'F'},{id:'0000',name:'Pov Sonita',sex:'F'},
+             {id:'0000',name:'Sorn Vireak Panhatepy',sex:'F'},{id:'0000',name:'Lar Sivhuoy',sex:'F'},
+             {id:'0000',name:'Keo Vinso Uttara',sex:'F'},{id:'0000',name:'Ya Pichmonika',sex:'F'},{id:'0000',name:'Lay Monichenda',sex:'F'}],
+  'Level3':[{id:'0048',name:'Sopheak Tithdana',sex:'F'},{id:'0063',name:'Neoun Vattanac',sex:'M'},
+                      {id:'0049',name:'Sopheak Rattanak',sex:'M'},{id:'0061',name:'Phal Sovann',sex:'M'},
+                      {id:'0053',name:'Hong Sothinal',sex:'M'},{id:'0055',name:'Theng Julinh',sex:'F'},
+                      {id:'0001',name:'Lay Phearadavid',sex:'M'},{id:'0004',name:'Lor Sovannhanah',sex:'F'}]
+};
+
+// ✅ FIXED: keys now match studentData class names EXACTLY (spacing, spelling, casing),
+// no duplicate keys, so "send to Telegram per class" works for every class.
+const classChatIds = {
+    'ថ្នាក់មត្តេយ្យកម្រិតមធ្យម(ព្រឹក)':'-1004395249971',
+    'ថ្នាក់មត្តេយ្យកម្រិតមធ្យម(រសៀល)':'-1004395249971',
+    'ថ្នាក់មត្តេយ្យកម្រិតខ្ពស់(ព្រឹក)':'-1003824222892',
+    'ថ្នាក់មត្តេយ្យកម្រិតខ្ពស់(រសៀល)':'-1003824222892',
+    'ថ្នាក់ទី១(ព្រឹក)':'-1004311154499',
+    'ថ្នាក់ទី១(រសៀល)':'-1004311154499',
+    'ថ្នាក់ទី២(ព្រឹក)':'-1004302792291',
+    'ថ្នាក់ទី២(រសៀល)':'-1004302792291',
+    'ថ្នាក់ទី៣ (ព្រឹក)':'-1004399563110',
+    'ថ្នាក់ទី៣(រសៀល)':'-1004399563110',
+    'ថ្នាក់ទី ៤':'-1003918743357',
+    'ថ្នាក់ទី ៥':'-1004348163826',
+    'ថ្នាក់ទី៦':'-1004328009786',
+    'មត្ដេយ្យកម្រិតទាប(ព្រឹក)':'-1004438913750',
+    'មត្ដេយ្យកម្រិតទាប(រសៀល)':'-1004438913750',
+    'Found1 Morning':'-1004315940119',
+    'Found1 Evening':'-1004315940119',
+    'Found2 Morning':'-1004202367586',
+    'Found2 Afternoon':'-1004202367586',
+    'Nursery Morning':'-1003917977569',
+    'Nursery Afternoon':'-1003917977569',
+    'Level1 Morning':'-1004322375661',
+    'Level1 Afternoon':'-1004322375661',
+    'Level2':'-1004417009497',
+    'Level3':'-1004357360180'
+};
+
+const TELEGRAM_BOT_TOKEN = '8501623225:AAGu-F_GHSQ-dLBrEME7eidOpW2yDf3qvXw';
+const SUMMARY_CHAT_ID = '-1003814592979';
+
+// ========== STORAGE KEYS ==========
+const FORM_STATE_KEY = 'mikids-form-state';
+const REPORTS_KEY = 'mikids-reports';
+const NEW_STUDENTS_KEY = 'mikids-new-students';
+const LEFT_STUDENTS_KEY = 'mikids-left-students';
+const TRIAL_STUDENTS_KEY = 'mikids-trial-students';
+const NEW_CARE_KEY = 'mikids-new-care';
+const STOP_CARE_KEY = 'mikids-stop-care';
+
+let selectedClassName = '';
+let reports = [];
+let newStudentsArray = [];
+let leftStudentsArray = [];
+let trialStudentsArray = [];
+let newCareStudentsArray = [];
+let stopCareStudentsArray = [];
+let attendanceRecords = {};
+
+// ========== PERSISTENT STORAGE HELPERS ==========
+async function storageSave(key, value) {
+    try {
+        await window.storage.set(key, JSON.stringify(value));
+    } catch(e) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch(e2) {}
+    }
+}
+
+async function storageLoad(key) {
+    try {
+        const result = await window.storage.get(key);
+        if (result && result.value) return JSON.parse(result.value);
+    } catch(e) {
+        try {
+            const val = localStorage.getItem(key);
+            if (val) return JSON.parse(val);
+        } catch(e2) {}
+    }
+    return null;
+}
+
+// ========== SAVE FORM STATE ==========
+let saveTimer = null;
+function saveFormState() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+        const state = {
+            reportDate: document.getElementById('reportDate').value,
+            totalStudents: document.getElementById('totalStudents').value,
+            totalFemaleStudents: document.getElementById('totalFemaleStudents').value,
+            fullTimeStudents: document.getElementById('fullTimeStudents').value,
+            fullTimeFemale: document.getElementById('fullTimeFemale').value,
+            khmerOnlyTotal: document.getElementById('khmerOnlyTotal').value,
+            khmerOnlyFemale: document.getElementById('khmerOnlyFemale').value,
+            englishOnlyTotal: document.getElementById('englishOnlyTotal').value,
+            englishOnlyFemale: document.getElementById('englishOnlyFemale').value,
+            trialStudentsTotal: document.getElementById('trialStudentsTotal').value,
+            trialFemale: document.getElementById('trialFemale').value,
+            trialProgram: document.getElementById('trialProgram').value,
+            trialDate: document.getElementById('trialDate').value,
+            trialDuration: document.getElementById('trialDuration').value,
+            careServiceTotal: document.getElementById('careServiceTotal').value,
+            careServiceFemale: document.getElementById('careServiceFemale').value,
+            morningTotal: document.getElementById('morningTotal').value,
+            morningFemale: document.getElementById('morningFemale').value,
+            morningAbsentTotal: document.getElementById('morningAbsentTotal').value,
+            morningAbsentFemale: document.getElementById('morningAbsentFemale').value,
+            morningParentPermission: document.getElementById('morningParentPermission').value,
+            morningParentPermissionFemale: document.getElementById('morningParentPermissionFemale').value,
+            morningSchoolContact: document.getElementById('morningSchoolContact').value,
+            morningSchoolContactFemale: document.getElementById('morningSchoolContactFemale').value,
+            afternoonTotal: document.getElementById('afternoonTotal').value,
+            afternoonFemale: document.getElementById('afternoonFemale').value,
+            afternoonAbsentTotal: document.getElementById('afternoonAbsentTotal').value,
+            afternoonAbsentFemale: document.getElementById('afternoonAbsentFemale').value,
+            afternoonParentPermission: document.getElementById('afternoonParentPermission').value,
+            afternoonParentPermissionFemale: document.getElementById('afternoonParentPermissionFemale').value,
+            afternoonSchoolContact: document.getElementById('afternoonSchoolContact').value,
+            afternoonSchoolContactFemale: document.getElementById('afternoonSchoolContactFemale').value,
+        };
+        await storageSave(FORM_STATE_KEY, state);
+        await storageSave(NEW_STUDENTS_KEY, newStudentsArray);
+        await storageSave(LEFT_STUDENTS_KEY, leftStudentsArray);
+        await storageSave(TRIAL_STUDENTS_KEY, trialStudentsArray);
+        await storageSave(NEW_CARE_KEY, newCareStudentsArray);
+        await storageSave(STOP_CARE_KEY, stopCareStudentsArray);
+        const ind = document.getElementById('saveIndicator');
+        if (ind) { ind.classList.add('show'); setTimeout(()=>ind.classList.remove('show'), 2000); }
+    }, 500);
+}
+
+// ========== LOAD FORM STATE ==========
+async function loadFormState() {
+    const state = await storageLoad(FORM_STATE_KEY);
+    if (state) {
+        Object.keys(state).forEach(key => {
+            const el = document.getElementById(key);
+            if (el) el.value = state[key];
+        });
+        syncFemaleDisplay();
+    }
+    const savedNew = await storageLoad(NEW_STUDENTS_KEY);
+    if (savedNew) { newStudentsArray = savedNew; displayNewStudents(); }
+    const savedLeft = await storageLoad(LEFT_STUDENTS_KEY);
+    if (savedLeft) { leftStudentsArray = savedLeft; displayLeftStudents(); }
+    const savedTrial = await storageLoad(TRIAL_STUDENTS_KEY);
+    if (savedTrial) { trialStudentsArray = savedTrial; if(trialStudentsArray.length>0) generateTrialStudentFields(); }
+    const savedNewCare = await storageLoad(NEW_CARE_KEY);
+    if (savedNewCare) { newCareStudentsArray = savedNewCare; displayNewCareStudents(); }
+    const savedStopCare = await storageLoad(STOP_CARE_KEY);
+    if (savedStopCare) { stopCareStudentsArray = savedStopCare; displayStopCareStudents(); }
+}
+
+// ========== HELPERS ==========
+function syncFemaleDisplay() {
+    const val = document.getElementById('totalFemaleStudents').value || '0';
+    const span = document.getElementById('totalFemaleDisplay');
+    if (span) span.textContent = val;
+}
+function isMorningClass(name) { return name.includes('ព្រឹក') || name.toLowerCase().includes('morning'); }
+function isAfternoonClass(name) { return name.includes('រសៀល') || name.toLowerCase().includes('afternoon') || name.toLowerCase().includes('evening'); }
+
+// ========== REPORTS ==========
+async function loadReports() {
+    const saved = await storageLoad(REPORTS_KEY);
+    if (saved) reports = saved;
+}
+async function saveReports() {
+    await storageSave(REPORTS_KEY, reports);
+}
+
+// ========== MAIN TABS ==========
+function switchMainTab(e, tabName) {
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.main-tab-content').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(tabName + '-system').classList.add('active');
+}
+
+// ========== ATTENDANCE ==========
+document.getElementById('attDate').valueAsDate = new Date();
+
+function buildClassList() {
+    const classListDiv = document.getElementById('classList');
+    classListDiv.innerHTML = '';
+    Object.keys(studentData).forEach((className, index) => {
+        const div = document.createElement('div');
+        div.className = 'class-item' + (className === selectedClassName ? ' active' : (index === 0 && !selectedClassName ? ' active' : ''));
+        div.innerText = className;
+        div.onclick = () => selectClass(div, className);
+        classListDiv.appendChild(div);
+    });
+}
+
+function selectClass(element, className) {
+    document.querySelectorAll('.class-item').forEach(i => i.classList.remove('active'));
+    element.classList.add('active');
+    selectedClassName = className;
+    document.getElementById('displayClass').innerText = className;
+    renderStudents(className);
+}
+
+function renderStudents(className) {
+    const container = document.getElementById('studentContainer');
+    container.innerHTML = '';
+    const students = studentData[className] || [];
+    students.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'student-card';
+        card.setAttribute('data-name', s.name);
+        card.setAttribute('data-id', s.id);
+        card.setAttribute('data-sex', s.sex);
+        const savedRecord = attendanceRecords[className] && attendanceRecords[className][s.name];
+        const savedStatus = savedRecord ? savedRecord.status : 'present';
+        card.innerHTML = `
+            <div class="student-id">${s.id}</div>
+            <div class="student-info">
+                <div class="student-name">${s.name}</div>
+                <div class="student-sex">Sex: ${s.sex === 'M' ? 'Male' : 'Female'}</div>
+            </div>
+            <div class="attendance-btns">
+                <button class="btn-att present ${savedStatus==='present'?'active':''}" onclick="mark(this,'✔️')">✔️</button>
+                <button class="btn-att permission ${savedStatus==='permission'?'active':''}" onclick="mark(this,'P')">P</button>
+                <button class="btn-att absent ${savedStatus==='absent'?'active':''}" onclick="mark(this,'A')">A</button>
+            </div>`;
+        container.appendChild(card);
+    });
+    calculateSummary();
+    saveCurrentClassAttendance();
+}
+
+function calculateSummary() {
+    const permissionCount = document.querySelectorAll('.btn-att.permission.active').length;
+    const absentCount = document.querySelectorAll('.btn-att.absent.active').length;
+    const totalStudents = document.querySelectorAll('.student-card').length;
+    const presentCount = totalStudents - (permissionCount + absentCount);
+    document.getElementById('cP').innerText = presentCount;
+    document.getElementById('cL').innerText = permissionCount;
+    document.getElementById('cA').innerText = absentCount;
+    document.getElementById('cT').innerText = totalStudents;
+}
+
+function mark(btn, type) {
+    btn.parentElement.querySelectorAll('.btn-att').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    calculateSummary();
+    saveCurrentClassAttendance();
+}
+
+function saveCurrentClassAttendance() {
+    if (!selectedClassName) return;
+    if (!attendanceRecords[selectedClassName]) attendanceRecords[selectedClassName] = {};
+    document.querySelectorAll('.student-card').forEach(card => {
+        const name = card.getAttribute('data-name');
+        const sex = card.getAttribute('data-sex');
+        const isPermission = card.querySelector('.btn-att.permission').classList.contains('active');
+        const isAbsent = card.querySelector('.btn-att.absent').classList.contains('active');
+        const status = isPermission ? 'permission' : (isAbsent ? 'absent' : 'present');
+        attendanceRecords[selectedClassName][name] = { status, sex };
+    });
+}
+
+// ========== TOTALS ==========
+function calculateAllClassTotals() {
+    const seenAll=new Set(), seenMorning=new Set(), seenAfternoon=new Set();
+    let totalCount=0, totalFemaleCount=0, morningTotal=0, morningFemale=0, afternoonTotal=0, afternoonFemale=0;
+    Object.keys(studentData).forEach(className => {
+        const isMorning = isMorningClass(className), isAfternoon = isAfternoonClass(className);
+        studentData[className].forEach(s => {
+            const key = s.name.trim()+'|'+s.sex, isFemale = s.sex==='F';
+            if (!seenAll.has(key)) { seenAll.add(key); totalCount++; if(isFemale) totalFemaleCount++; }
+            if (isMorning && !seenMorning.has(key)) { seenMorning.add(key); morningTotal++; if(isFemale) morningFemale++; }
+            if (isAfternoon && !seenAfternoon.has(key)) { seenAfternoon.add(key); afternoonTotal++; if(isFemale) afternoonFemale++; }
+        });
+    });
+    return { totalCount, totalFemaleCount, morningTotal, morningFemale, afternoonTotal, afternoonFemale };
+}
+
+function calculateAbsenceFromRecords(sessionType) {
+    let absent=0, absentFemale=0, permission=0, permissionFemale=0;
+    Object.keys(attendanceRecords).forEach(className => {
+        const match = (sessionType==='morning' && isMorningClass(className)) || (sessionType==='afternoon' && isAfternoonClass(className));
+        if (!match) return;
+        Object.values(attendanceRecords[className]).forEach(record => {
+            const isFemale = record.sex==='F';
+            if (record.status==='absent') { absent++; if(isFemale) absentFemale++; }
+            else if (record.status==='permission') { permission++; if(isFemale) permissionFemale++; }
+        });
+    });
+    return { absent, absentFemale, permission, permissionFemale };
+}
+
+// ========== SYNC ==========
+function syncAttendanceToReport() {
+    const t = calculateAllClassTotals();
+    const morningAbs = calculateAbsenceFromRecords('morning');
+    const afternoonAbs = calculateAbsenceFromRecords('afternoon');
+
+    document.getElementById('totalStudents').value = t.totalCount;
+    document.getElementById('totalFemaleStudents').value = t.totalFemaleCount;
+    syncFemaleDisplay();
+
+    document.getElementById('morningTotal').value = t.morningTotal;
+    document.getElementById('morningFemale').value = t.morningFemale;
+    document.getElementById('morningAbsentTotal').value = morningAbs.absent;
+    document.getElementById('morningAbsentFemale').value = morningAbs.absentFemale;
+    document.getElementById('morningParentPermission').value = morningAbs.permission;
+    document.getElementById('morningParentPermissionFemale').value = morningAbs.permissionFemale;
+    document.getElementById('afternoonTotal').value = t.afternoonTotal;
+    document.getElementById('afternoonFemale').value = t.afternoonFemale;
+    document.getElementById('afternoonAbsentTotal').value = afternoonAbs.absent;
+    document.getElementById('afternoonAbsentFemale').value = afternoonAbs.absentFemale;
+    document.getElementById('afternoonParentPermission').value = afternoonAbs.permission;
+    document.getElementById('afternoonParentPermissionFemale').value = afternoonAbs.permissionFemale;
+    saveFormState();
+}
+
+function autoSyncTotals() {
+    syncAttendanceToReport();
+}
+
+function manualSyncAttendance() {
+    syncAttendanceToReport();
+    alert('✅ បានទាញយកទិន្នន័យវត្តមានថ្មីបានជោគជ័យ!');
+}
+
+// ========== TELEGRAM ==========
+async function sendAttendanceToTelegram() {
+    if (!selectedClassName) return alert('⚠️ សូមជ្រើសរើសថ្នាក់!');
+    const chatId = classChatIds[selectedClassName]?.trim();
+    if (!chatId) return alert('⚠️ មិនទាន់មាន Chat ID!');
+    const date = document.getElementById('attDate').value;
+    const permissionCount = document.querySelectorAll('.btn-att.permission.active').length;
+    const absentCount = document.querySelectorAll('.btn-att.absent.active').length;
+    const totalAbsent = permissionCount + absentCount;
+    let message = `<b>📊 របាយការណ៍វត្តមាន</b>\n🏫 ថ្នាក់: <b>${selectedClassName}</b>\n📅 ថ្ងៃទី: ${date}\n--------------------------\n`;
+    let hasIssue = false;
+    document.querySelectorAll('.student-card').forEach(card => {
+        const isP = card.querySelector('.btn-att.permission').classList.contains('active');
+        const isA = card.querySelector('.btn-att.absent').classList.contains('active');
+        if (isP || isA) { hasIssue = true; message += `🆔 ${card.getAttribute('data-id')}. ${card.getAttribute('data-name')} -> ${isP ? '🟡 ច្បាប់' : '🔴 អវត្តមាន'}\n`; }
+    });
+    if (!hasIssue) message += '✅ សិស្សវត្តមានគ្រប់ចំនួន\n';
+    message += `--------------------------\n❌ អវត្តមានសរុប: <b>${totalAbsent}</b> នាក់\n   🟡 ច្បាប់: ${permissionCount} នាក់\n   🔴 ឥតច្បាប់: ${absentCount} នាក់`;
+    try {
+        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chat_id:chatId, text:message, parse_mode:'HTML'}) });
+        const result = await res.json();
+        result.ok ? alert('✅ បានផ្ញើទៅ Telegram!') : alert('❌ ' + result.description + telegramErrorHint(result.description));
+    } catch(e) { alert('❌ បញ្ហាបច្ចេកទេស!'); }
+}
+
+async function sendMorningSummaryToTelegram() {
+    const date = document.getElementById('attDate').value;
+    const t = calculateAllClassTotals();
+    const abs = calculateAbsenceFromRecords('morning');
+    const totalAbsent = abs.absent + abs.permission;
+    const totalAbsentFemale = abs.absentFemale + abs.permissionFemale;
+    let message = `📊 *របាយការណ៍វត្តមានប្រចាំថ្ងៃ*\n📅 *ថ្ងៃទី:* ${date}\n\n━━━━━━━━━━━━━━━━━━\n🌅 *ពេលព្រឹក*\n• សិស្សសរុប: ${t.morningTotal} នាក់ (ស្រី ${t.morningFemale} នាក់)\n• អវត្តមានសរុប: ${totalAbsent} នាក់ (ស្រី ${totalAbsentFemale} នាក់)\n  - ច្បាប់: ${abs.permission} នាក់ (ស្រី ${abs.permissionFemale} នាក់)\n  - ឥតច្បាប់: ${abs.absent} នាក់ (ស្រី ${abs.absentFemale} នាក់)`;
+    try {
+        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chat_id:SUMMARY_CHAT_ID, text:message, parse_mode:'Markdown'}) });
+        const result = await res.json();
+        result.ok ? alert('✅ បានផ្ញើសង្ខេបព្រឹក!') : alert('❌ ' + (result.description||'Error') + telegramErrorHint(result.description));
+    } catch(e) { alert('❌ មានបញ្ហាតភ្ជាប់ Telegram'); }
+}
+
+async function sendAfternoonSummaryToTelegram() {
+    const date = document.getElementById('attDate').value;
+    const t = calculateAllClassTotals();
+    const abs = calculateAbsenceFromRecords('afternoon');
+    const totalAbsent = abs.absent + abs.permission;
+    const totalAbsentFemale = abs.absentFemale + abs.permissionFemale;
+    let message = `📊 *របាយការណ៍វត្តមានប្រចាំថ្ងៃ*\n📅 *ថ្ងៃទី:* ${date}\n\n━━━━━━━━━━━━━━━━━━\n🌆 *ពេលរសៀល*\n• សិស្សសរុប: ${t.afternoonTotal} នាក់ (ស្រី ${t.afternoonFemale} នាក់)\n• អវត្តមានសរុប: ${totalAbsent} នាក់ (ស្រី ${totalAbsentFemale} នាក់)\n  - ច្បាប់: ${abs.permission} នាក់ (ស្រី ${abs.permissionFemale} នាក់)\n  - ឥតច្បាប់: ${abs.absent} នាក់ (ស្រី ${abs.absentFemale} នាក់)`;
+    try {
+        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chat_id:SUMMARY_CHAT_ID, text:message, parse_mode:'Markdown'}) });
+        const result = await res.json();
+        result.ok ? alert('✅ បានផ្ញើសង្ខេបរសៀល!') : alert('❌ ' + (result.description||'Error') + telegramErrorHint(result.description));
+    } catch(e) { alert('❌ មានបញ្ហាតភ្ជាប់ Telegram'); }
+}
+
+function exportToExcel() { alert('📥 មុខងារ Excel នឹងបន្ថែមនៅពេលក្រោយ!'); }
+
+// ========== FIND CORRECT TELEGRAM CHAT IDs ==========
+// "Bad Request: chat not found" almost always means either the bot isn't in that
+// group anymore, or the group's ID changed (e.g. it got upgraded to a supergroup).
+// This reads the bot's recent updates and lists every chat + its CURRENT id, so you
+// can copy the correct value into classChatIds / SUMMARY_CHAT_ID in the code.
+async function findChatIds() {
+    try {
+        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`);
+        const result = await res.json();
+        if (!result.ok) { alert('❌ ' + (result.description || 'Error')); return; }
+        const chats = {};
+        (result.result || []).forEach(u => {
+            const src = u.message || u.channel_post || u.my_chat_member || u.edited_message;
+            const chat = src && src.chat;
+            if (chat) chats[chat.id] = chat.title || chat.username || chat.first_name || '(គ្មានឈ្មោះ)';
+        });
+        const list = Object.entries(chats);
+        if (list.length === 0) {
+            alert('⚠️ រកមិនឃើញ Chat ណាមួយឡើយ។\n\nមូលហេតុប្រហែលជា៖\n• Bot មិនទាន់ត្រូវបានបន្ថែមចូលទៅក្រុមនោះទេ\n• គ្មានគេផ្ញើសារថ្មីៗក្នុងក្រុមនោះក្នុងរយៈពេលថ្មីៗនេះ\n\nសូមបន្ថែម Bot ចូលក្រុម ហើយឲ្យនរណាម្នាក់ផ្ញើសារណាមួយក្នុងក្រុមនោះ (ឧ. សួស្ដី) រួចចុចប៊ូតុងនេះម្តងទៀត។');
+            return;
+        }
+        let msgText = '📋 បញ្ជី Chat ID បច្ចុប្បន្ន (ចម្លងលេខទាំងនេះទៅដាក់ក្នុងកូដ)៖\n\n';
+        list.forEach(([id, title]) => { msgText += `🏷️ ${title}\n🆔 ${id}\n\n`; });
+        alert(msgText);
+    } catch(e) { alert('❌ បញ្ហាបច្ចេកទេស: ' + e.message); }
+}
+
+function telegramErrorHint(description) {
+    if (description && description.toLowerCase().includes('chat not found')) {
+        return '\n\n💡 មូលហេតុប្រហែលមកពី Chat ID ខុស ឬ Bot មិននៅក្នុងក្រុមនោះទេ។ ចុចប៊ូតុង "🔍 រកលេខ Chat ID" ដើម្បីរកលេខត្រឹមត្រូវថ្មី។';
+    }
+    return '';
+}
+
+// ========== STATS TABS ==========
+function switchStatsTab(e, tabName) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(tabName + '-tab').classList.add('active');
+    if (tabName === 'view') displayReports();
+    else if (tabName === 'summary') displaySummary();
+    else if (tabName === 'create') populateClassDropdowns();
+}
+
+function populateClassDropdowns() {
+    ['newStudentClass','leftStudentClass','newCareStudentClass','stopCareStudentClass'].forEach(id => {
+        const sel = document.getElementById(id);
+        const cur = sel.value;
+        sel.innerHTML = '<option value="">-- ជ្រើសរើសថ្នាក់ --</option>';
+        Object.keys(studentData).forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+        sel.value = cur;
+    });
+}
+
+// ========== TRIAL STUDENTS ==========
+function generateTrialStudentFields() {
+    const count = parseInt(document.getElementById('trialStudentsTotal').value) || 0;
+    const container = document.getElementById('trialStudentsContainer');
+    if (count === 0) { container.innerHTML = ''; trialStudentsArray = []; saveFormState(); return; }
+    const currentCount = trialStudentsArray.length;
+    if (count > currentCount) { for (let i = currentCount; i < count; i++) trialStudentsArray.push({name:'',gender:'',class:'',program:''}); }
+    else { trialStudentsArray = trialStudentsArray.slice(0, count); }
+    let html = '<h4 style="color:#667eea;margin-bottom:15px;">បញ្ជីសិស្សសាកល្បង</h4>';
+    for (let i = 0; i < count; i++) {
+        const s = trialStudentsArray[i];
+        html += `<div class="student-entry" style="display:block;padding:20px;margin-bottom:15px;">
+            <h5 style="color:#333;margin-bottom:15px;">សិស្សទី ${i+1}</h5>
+            <div class="form-grid">
+                <div class="form-group"><label>ឈ្មោះ *</label><input type="text" value="${s.name||''}" placeholder="បញ្ចូលឈ្មោះ" onchange="updateTrialStudent(${i},'name',this.value)"></div>
+                <div class="form-group"><label>ភេទ *</label><select onchange="updateTrialStudent(${i},'gender',this.value)"><option value="">-- ជ្រើស --</option><option value="M" ${s.gender==='M'?'selected':''}>ប្រុស</option><option value="F" ${s.gender==='F'?'selected':''}>ស្រី</option></select></div>
+                <div class="form-group"><label>ថ្នាក់ *</label><select onchange="updateTrialStudent(${i},'class',this.value)"><option value="">-- ជ្រើស --</option>${Object.keys(studentData).map(c=>`<option value="${c}" ${s.class===c?'selected':''}>${c}</option>`).join('')}</select></div>
+                <div class="form-group"><label>កម្មវិធី *</label><select onchange="updateTrialStudent(${i},'program',this.value)"><option value="">-- ជ្រើស --</option><option value="full" ${s.program==='full'?'selected':''}>ពេញកម្មវិធីសិក្សា</option><option value="khmer" ${s.program==='khmer'?'selected':''}>តែភាសាខ្មែរ</option><option value="english" ${s.program==='english'?'selected':''}>តែភាសាអង់គ្លេស</option></select></div>
+            </div></div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateTrialStudent(index, field, value) {
+    if (trialStudentsArray[index]) {
+        trialStudentsArray[index][field] = value;
+        if (field === 'gender') document.getElementById('trialFemale').value = trialStudentsArray.filter(s=>s.gender==='F').length;
+        saveFormState();
+    }
+}
+
+// ========== NEW STUDENTS ==========
+function addNewStudent() {
+    const className = document.getElementById('newStudentClass').value;
+    const name = document.getElementById('newStudentName').value.trim();
+    const gender = document.getElementById('newStudentGender').value;
+    const date = document.getElementById('newStudentDate').value;
+    const paymentVal = document.getElementById('newStudentPaymentDuration').value;
+    const customDur = document.getElementById('customPaymentDuration').value.trim();
+    const programValue = document.getElementById('newStudentProgram').value;
+    if (!className || !name || !gender || !date) { alert('សូមបំពេញព័ត៌មានឲ្យបានគ្រប់គ្រាន់!'); return; }
+    const durationMap = {'1month':'១ខែ','3months':'៣ខែ','6months':'៦ខែ','1year':'១ឆ្នាំ'};
+    const finalPayment = paymentVal === 'custom' ? customDur : (durationMap[paymentVal] || '');
+    const programMap = {'full':'ពេញកម្មវិធីសិក្សា','khmer':'តែភាសាខ្មែរ','english':'តែភាសាអង់គ្លេស'};
+    newStudentsArray.push({name, class:className, gender, date, paymentDuration:finalPayment, program:programMap[programValue]||''});
+    if (!studentData[className]) studentData[className] = [];
+    studentData[className].push({id:Date.now().toString().slice(-3), name, sex:gender});
+    ['newStudentName','newStudentDate','customPaymentDuration'].forEach(id=>document.getElementById(id).value='');
+    ['newStudentGender','newStudentProgram','newStudentPaymentDuration','newStudentClass'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('customPaymentField').style.display='none';
+    displayNewStudents(); populateClassDropdowns(); buildClassList();
+    if (selectedClassName === className) renderStudents(className);
+    autoSyncTotals();
+}
+
+function displayNewStudents() {
+    const c = document.getElementById('newStudentsList');
+    c.innerHTML = newStudentsArray.length === 0 ? '' : newStudentsArray.map((s,i)=>`
+        <div class="student-entry"><div class="student-entry-info"><div class="student-entry-name">${s.name}</div><div class="student-entry-details">ថ្នាក់: ${s.class} | ភេទ: ${s.gender==='M'?'ប្រុស':'ស្រី'} | ថ្ងៃចូល: ${s.date}${s.program?' | '+s.program:''}${s.paymentDuration?' | '+s.paymentDuration:''}</div></div><button class="btn-remove" onclick="removeNewStudent(${i})">លុប</button></div>`).join('');
+}
+
+function removeNewStudent(index) {
+    const s = newStudentsArray[index];
+    if (studentData[s.class]) {
+        studentData[s.class] = studentData[s.class].filter(st => st.name !== s.name);
+    }
+    if (attendanceRecords[s.class]) {
+        delete attendanceRecords[s.class][s.name];
+    }
+    newStudentsArray.splice(index,1);
+    displayNewStudents();
+    buildClassList();
+    populateClassDropdowns();
+    if (selectedClassName === s.class) renderStudents(s.class);
+    autoSyncTotals();
+}
+
+// ========== LEFT STUDENTS ==========
+function updateLeftStudentList() {
+    const className = document.getElementById('leftStudentClass').value;
+    const sel = document.getElementById('leftStudentSelect');
+    sel.innerHTML = '<option value="">-- ជ្រើសរើសសិស្ស --</option>';
+    if (className && studentData[className]) {
+        studentData[className].forEach(s => { const o = document.createElement('option'); o.value = JSON.stringify({name:s.name,class:className,id:s.id,sex:s.sex}); o.textContent = `${s.id}. ${s.name} (${s.sex==='M'?'ប្រុស':'ស្រី'})`; sel.appendChild(o); });
+    }
+}
+
+function addLeftStudent() {
+    const studentJson = document.getElementById('leftStudentSelect').value;
+    const date = document.getElementById('leftStudentDate').value;
+    const reason = document.getElementById('leftReason').value.trim();
+    if (!studentJson || !date) { alert('សូមជ្រើសរើសសិស្ស និងកាលបរិច្ឆេទ!'); return; }
+    const si = JSON.parse(studentJson);
+    leftStudentsArray.push({name:si.name, class:si.class, id:si.id, sex:si.sex, date, reason:reason||'មិនបានបញ្ជាក់'});
+    if (studentData[si.class]) {
+        studentData[si.class] = studentData[si.class].filter(s => s.name !== si.name);
+    }
+    if (attendanceRecords[si.class]) {
+        delete attendanceRecords[si.class][si.name];
+    }
+    ['leftStudentClass','leftStudentSelect','leftStudentDate','leftReason'].forEach(id=>document.getElementById(id).value='');
+    displayLeftStudents();
+    updateLeftStudentList();
+    buildClassList();
+    populateClassDropdowns();
+    if (selectedClassName === si.class) renderStudents(si.class);
+    autoSyncTotals();
+}
+
+function displayLeftStudents() {
+    const c = document.getElementById('leftStudentsList');
+    c.innerHTML = leftStudentsArray.length === 0 ? '' : leftStudentsArray.map((s,i)=>`
+        <div class="student-entry"><div class="student-entry-info"><div class="student-entry-name">${s.name}</div><div class="student-entry-details">ថ្នាក់: ${s.class} | ថ្ងៃឈប់: ${s.date} | មូលហេតុ: ${s.reason}</div></div><button class="btn-remove" onclick="removeLeftStudent(${i})">លុប</button></div>`).join('');
+}
+
+function removeLeftStudent(index) {
+    const s = leftStudentsArray[index];
+    if (!studentData[s.class]) studentData[s.class] = [];
+    const alreadyExists = studentData[s.class].some(st => st.name === s.name);
+    if (!alreadyExists) {
+        studentData[s.class].push({id: s.id, name: s.name, sex: s.sex});
+    }
+    leftStudentsArray.splice(index,1);
+    displayLeftStudents();
+    buildClassList();
+    populateClassDropdowns();
+    if (selectedClassName === s.class) renderStudents(s.class);
+    autoSyncTotals();
+}
+
+// ========== CARE SERVICE ==========
+function updateNewCareStudentList() {
+    const className = document.getElementById('newCareStudentClass').value;
+    const sel = document.getElementById('newCareStudentSelect');
+    sel.innerHTML = '<option value="">-- ជ្រើសរើសសិស្ស --</option>';
+    if (className && studentData[className]) {
+        studentData[className].forEach(s => { const o = document.createElement('option'); o.value = JSON.stringify({name:s.name,class:className,id:s.id,sex:s.sex}); o.textContent = `${s.id}. ${s.name} (${s.sex==='M'?'ប្រុស':'ស្រី'})`; sel.appendChild(o); });
+    }
+}
+
+function addNewCareStudent() {
+    const studentJson = document.getElementById('newCareStudentSelect').value;
+    const date = document.getElementById('newCareStartDate').value;
+    const programValue = document.getElementById('newCareStudentProgram').value;
+    if (!studentJson || !date) { alert('សូមជ្រើសរើសសិស្ស និងកាលបរិច្ឆេទ!'); return; }
+    const si = JSON.parse(studentJson);
+    const programMap = {'full':'ពេញកម្មវិធីសិក្សា','khmer':'តែភាសាខ្មែរ','english':'តែភាសាអង់គ្លេស'};
+    newCareStudentsArray.push({name:si.name, class:si.class, id:si.id, sex:si.sex, date, program:programMap[programValue]||''});
+    document.getElementById('careServiceTotal').value = (parseInt(document.getElementById('careServiceTotal').value)||0)+1;
+    if (si.sex==='F') document.getElementById('careServiceFemale').value = (parseInt(document.getElementById('careServiceFemale').value)||0)+1;
+    ['newCareStudentClass','newCareStudentSelect','newCareStudentProgram','newCareStartDate'].forEach(id=>document.getElementById(id).value='');
+    displayNewCareStudents(); updateNewCareStudentList(); saveFormState();
+}
+
+function displayNewCareStudents() {
+    const c = document.getElementById('newCareStudentsList');
+    c.innerHTML = newCareStudentsArray.length === 0 ? '' : newCareStudentsArray.map((s,i)=>`
+        <div class="student-entry"><div class="student-entry-info"><div class="student-entry-name">${s.name}</div><div class="student-entry-details">ថ្នាក់: ${s.class} | ចាប់ផ្តើម: ${s.date}${s.program?' | '+s.program:''}</div></div><button class="btn-remove" onclick="removeNewCareStudent(${i})">លុប</button></div>`).join('');
+}
+
+function removeNewCareStudent(index) {
+    const s = newCareStudentsArray[index];
+    document.getElementById('careServiceTotal').value = Math.max(0,(parseInt(document.getElementById('careServiceTotal').value)||0)-1);
+    if (s.sex==='F') document.getElementById('careServiceFemale').value = Math.max(0,(parseInt(document.getElementById('careServiceFemale').value)||0)-1);
+    newCareStudentsArray.splice(index,1); displayNewCareStudents(); saveFormState();
+}
+
+function updateStopCareStudentList() {
+    const className = document.getElementById('stopCareStudentClass').value;
+    const sel = document.getElementById('stopCareStudentSelect');
+    sel.innerHTML = '<option value="">-- ជ្រើសរើសសិស្ស --</option>';
+    if (className && studentData[className]) {
+        studentData[className].forEach(s => { const o = document.createElement('option'); o.value = JSON.stringify({name:s.name,class:className,id:s.id,sex:s.sex}); o.textContent = `${s.id}. ${s.name} (${s.sex==='M'?'ប្រុស':'ស្រី'})`; sel.appendChild(o); });
+    }
+}
+
+function addStopCareStudent() {
+    const studentJson = document.getElementById('stopCareStudentSelect').value;
+    const date = document.getElementById('stopCareDate').value;
+    const reason = document.getElementById('stopCareReason').value.trim();
+    if (!studentJson || !date) { alert('សូមជ្រើសរើសសិស្ស និងកាលបរិច្ឆេទ!'); return; }
+    const si = JSON.parse(studentJson);
+    stopCareStudentsArray.push({name:si.name, class:si.class, id:si.id, sex:si.sex, date, reason:reason||'មិនបានបញ្ជាក់'});
+    document.getElementById('careServiceTotal').value = Math.max(0,(parseInt(document.getElementById('careServiceTotal').value)||0)-1);
+    if (si.sex==='F') document.getElementById('careServiceFemale').value = Math.max(0,(parseInt(document.getElementById('careServiceFemale').value)||0)-1);
+    ['stopCareStudentClass','stopCareStudentSelect','stopCareDate','stopCareReason'].forEach(id=>document.getElementById(id).value='');
+    displayStopCareStudents(); updateStopCareStudentList(); saveFormState();
+}
+
+function displayStopCareStudents() {
+    const c = document.getElementById('stopCareStudentsList');
+    c.innerHTML = stopCareStudentsArray.length === 0 ? '' : stopCareStudentsArray.map((s,i)=>`
+        <div class="student-entry"><div class="student-entry-info"><div class="student-entry-name">${s.name}</div><div class="student-entry-details">ថ្នាក់: ${s.class} | ឈប់: ${s.date} | មូលហេតុ: ${s.reason}</div></div><button class="btn-remove" onclick="removeStopCareStudent(${i})">លុប</button></div>`).join('');
+}
+
+function removeStopCareStudent(index) {
+    const s = stopCareStudentsArray[index];
+    document.getElementById('careServiceTotal').value=(parseInt(document.getElementById('careServiceTotal').value)||0)+1;
+    if (s.sex==='F') document.getElementById('careServiceFemale').value=(parseInt(document.getElementById('careServiceFemale').value)||0)+1;
+    stopCareStudentsArray.splice(index,1); displayStopCareStudents(); saveFormState();
+}
+
+// ========== SUBMIT ==========
+async function submitReport() {
+    const trialCount = parseInt(document.getElementById('trialStudentsTotal').value)||0;
+    if (trialCount > 0) {
+        const incomplete = trialStudentsArray.filter(s=>!s.name||!s.gender||!s.class);
+        if (incomplete.length > 0) { alert(`សូមបំពេញព័ត៌មានសិស្សសាកល្បង! នៅសល់ ${incomplete.length} នាក់`); return; }
+    }
+    if (!document.getElementById('reportDate').value) { alert('សូមបញ្ចូលថ្ងៃខែឆ្នាំ!'); return; }
+    const g = id => parseInt(document.getElementById(id).value)||0;
+    const report = {
+        id: Date.now(),
+        reportDate: document.getElementById('reportDate').value,
+        totalStudents: g('totalStudents'), totalFemaleStudents: g('totalFemaleStudents'),
+        fullTimeStudents: g('fullTimeStudents'), fullTimeFemale: g('fullTimeFemale'),
+        khmerOnlyTotal: g('khmerOnlyTotal'), khmerOnlyFemale: g('khmerOnlyFemale'),
+        englishOnlyTotal: g('englishOnlyTotal'), englishOnlyFemale: g('englishOnlyFemale'),
+        trialStudentsTotal: g('trialStudentsTotal'), trialFemale: g('trialFemale'),
+        trialDate: document.getElementById('trialDate').value,
+        trialDuration: document.getElementById('trialDuration').value,
+        trialProgram: document.getElementById('trialProgram').value,
+        trialStudents: [...trialStudentsArray],
+        careServiceTotal: g('careServiceTotal'), careServiceFemale: g('careServiceFemale'),
+        newCareStudents: [...newCareStudentsArray], stopCareStudents: [...stopCareStudentsArray],
+        morningTotal: g('morningTotal'), morningFemale: g('morningFemale'),
+        morningAbsentTotal: g('morningAbsentTotal'), morningAbsentFemale: g('morningAbsentFemale'),
+        morningParentPermission: g('morningParentPermission'), morningParentPermissionFemale: g('morningParentPermissionFemale'),
+        morningSchoolContact: g('morningSchoolContact'), morningSchoolContactFemale: g('morningSchoolContactFemale'),
+        afternoonTotal: g('afternoonTotal'), afternoonFemale: g('afternoonFemale'),
+        afternoonAbsentTotal: g('afternoonAbsentTotal'), afternoonAbsentFemale: g('afternoonAbsentFemale'),
+        afternoonParentPermission: g('afternoonParentPermission'), afternoonParentPermissionFemale: g('afternoonParentPermissionFemale'),
+        afternoonSchoolContact: g('afternoonSchoolContact'), afternoonSchoolContactFemale: g('afternoonSchoolContactFemale'),
+        newStudents: [...newStudentsArray], leftStudents: [...leftStudentsArray],
+        createdAt: new Date().toISOString()
+    };
+    reports.push(report);
+    await saveReports();
+    sendStudentChangesToTelegram(report);
+    alert('✅ រក្សាទុករបាយការណ៍បានជោគជ័យ!');
+    newStudentsArray=[]; leftStudentsArray=[]; trialStudentsArray=[]; newCareStudentsArray=[]; stopCareStudentsArray=[];
+    displayNewStudents(); displayLeftStudents(); displayNewCareStudents(); displayStopCareStudents();
+    document.getElementById('trialStudentsContainer').innerHTML='';
+    document.getElementById('trialStudentsTotal').value='0';
+    try { await window.storage.delete(FORM_STATE_KEY); } catch(e) { try { localStorage.removeItem(FORM_STATE_KEY); } catch(e2) {} }
+    try { await window.storage.delete(NEW_STUDENTS_KEY); } catch(e) {}
+    try { await window.storage.delete(LEFT_STUDENTS_KEY); } catch(e) {}
+    try { await window.storage.delete(TRIAL_STUDENTS_KEY); } catch(e) {}
+    try { await window.storage.delete(NEW_CARE_KEY); } catch(e) {}
+    try { await window.storage.delete(STOP_CARE_KEY); } catch(e) {}
+    document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('totalStudents').value = '';
+    syncFemaleDisplay();
+}
+
+async function sendStudentChangesToTelegram(report) {
+    const pMap = {'full':'ពេញកម្មវិធីសិក្សា','khmer':'តែភាសាខ្មែរ','english':'តែភាសាអង់គ្លេស'};
+    let msg = `📊 *របាយការណ៍ស្ថិតិសិស្សប្រចាំថ្ងៃ*\n\n📅 *ថ្ងៃ:* ${report.reportDate}\n\n`;
+    msg += `━━━━━━━━━━━━━━━━━━\n👥 *ស្ថិតិសិស្សសរុប*\n• សិស្សសរុប: ${report.totalStudents} នាក់ (ស្រី ${report.totalFemaleStudents} នាក់)\n`;
+    if(report.fullTimeStudents>0) msg += `• ពេញម៉ោង: ${report.fullTimeStudents} នាក់\n`;
+    if(report.khmerOnlyTotal>0) msg += `• តែភាសាខ្មែរ: ${report.khmerOnlyTotal} នាក់\n`;
+    if(report.englishOnlyTotal>0) msg += `• តែភាសាអង់គ្លេស: ${report.englishOnlyTotal} នាក់\n`;
+    if(report.trialStudents?.length>0) {
+        msg += `\n━━━━━━━━━━━━━━━━━━\n🎓 *សិស្សសាកល្បង (${report.trialStudents.length} នាក់)*\n`;
+        if(report.trialDate) msg += `• ថ្ងៃ: ${report.trialDate}\n`;
+        if(report.trialDuration) msg += `• រយៈពេល: ${report.trialDuration}\n`;
+        report.trialStudents.forEach((s,i)=>{ msg += `\n${i+1}. ${s.name}\n   • ថ្នាក់: ${s.class} | ${s.gender==='M'?'ប្រុស':'ស្រី'} | ${pMap[s.program]||''}\n`; });
+    }
+    if(report.careServiceTotal>0||report.newCareStudents?.length>0||report.stopCareStudents?.length>0) {
+        msg += `\n━━━━━━━━━━━━━━━━━━\n🍽️ *ការមើលថែរ*\n• សរុប: ${report.careServiceTotal} នាក់ (ស្រី ${report.careServiceFemale} នាក់)\n`;
+        if(report.newCareStudents?.length>0) { msg += `\n✅ ថ្មី (${report.newCareStudents.length} នាក់)\n`; report.newCareStudents.forEach((s,i)=>{ msg += `${i+1}. ${s.name} (${s.class}) | ចាប់: ${s.date}\n`; }); }
+        if(report.stopCareStudents?.length>0) { msg += `\n❌ ឈប់ (${report.stopCareStudents.length} នាក់)\n`; report.stopCareStudents.forEach((s,i)=>{ msg += `${i+1}. ${s.name} (${s.class}) | ${s.date} | ${s.reason}\n`; }); }
+    }
+   if(report.newStudents?.length>0) {
+        msg += `\n━━━━━━━━━━━━━━━━━━\n✅ *ចូលថ្មី (${report.newStudents.length} នាក់)*\n`;
+        report.newStudents.forEach((s,i)=>{ msg += `\n${i+1}. ${s.name} (${s.class})\n   • ${s.gender==='M'?'ប្រុស':'ស្រី'} | ${s.date}`; if(s.program) msg+=` | ${s.program}`; if(s.paymentDuration) msg+=` | ${s.paymentDuration}`; msg+='\n'; });
+    }
+    if(report.leftStudents?.length>0) {
+        msg += `\n━━━━━━━━━━━━━━━━━━\n❌ *ឈប់ (${report.leftStudents.length} នាក់)*\n`;
+        report.leftStudents.forEach((s,i)=>{ msg += `\n${i+1}. ${s.name} (${s.class})\n   • ${s.date} | ${s.reason}\n`; });
+    }
+    msg += `\n━━━━━━━━━━━━━━━━━━\n📋 *សង្ខេប*\n🎓 សាកល្បង: ${report.trialStudents?.length||0} | 🍽️ ការមើលថែរ: ${report.careServiceTotal||0}\n📥 ចូលថ្មី: ${report.newStudents?.length||0} | 📤 ឈប់: ${report.leftStudents?.length||0}`;
+    try {
+        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({chat_id:SUMMARY_CHAT_ID, text:msg, parse_mode:'Markdown'}) });
+        const result = await res.json();
+        if(!result.ok) alert('⚠️ Telegram: ' + (result.description||'Error') + telegramErrorHint(result.description));
+    } catch(err) { alert('❌ Telegram error: ' + err.message); }
+}
+
+// ========== VIEW REPORTS ==========
+function displayReports() {
+    const c = document.getElementById('reportsList');
+    if (reports.length === 0) { c.innerHTML = `<div class="empty-state"><h3>មិនទាន់មានរបាយការណ៍</h3><p>សូមចុច "បង្កើតរបាយការណ៍ថ្មី"</p></div>`; return; }
+    const sorted = [...reports].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    c.innerHTML = sorted.map(r => {
+        const newC=r.newStudents?.length||0, leftC=r.leftStudents?.length||0, trialC=r.trialStudents?.length||0;
+        return `<div class="report-card">
+            <div class="report-header"><div class="report-title">របាយការណ៍ថ្ងៃទី ${r.reportDate}</div></div>
+            <div class="report-stats">
+                <div class="stat-item"><div class="stat-label">សិស្សសរុប</div><div class="stat-value">${r.totalStudents} នាក់ (ស្រី ${r.totalFemaleStudents||0})</div></div>
+                <div class="stat-item"><div class="stat-label">ព្រឹក</div><div class="stat-value">${r.morningTotal||0} (ស្រី ${r.morningFemale||0})</div></div>
+                <div class="stat-item"><div class="stat-label">រសៀល</div><div class="stat-value">${r.afternoonTotal||0} (ស្រី ${r.afternoonFemale||0})</div></div>
+                ${trialC>0?`<div class="stat-item"><div class="stat-label">សាកល្បង</div><div class="stat-value">${trialC} នាក់</div>${r.trialStudents?.length>0?'<div class="stat-label" style="font-size:12px;margin-top:4px;">'+r.trialStudents.map(s=>s.name).join(', ')+'</div>':''}</div>`:''}
+                <div class="stat-item"><div class="stat-label">ចូលថ្មី</div><div class="stat-value">${newC} នាក់</div>${newC>0?'<div class="stat-label" style="font-size:12px;margin-top:4px;">'+r.newStudents.map(s=>s.name).join(', ')+'</div>':''}</div>
+                <div class="stat-item"><div class="stat-label">ឈប់</div><div class="stat-value">${leftC} នាក់</div>${leftC>0?'<div class="stat-label" style="font-size:12px;margin-top:4px;">'+r.leftStudents.map(s=>s.name).join(', ')+'</div>':''}</div>
+            </div>
+            <div class="action-buttons"><button class="btn-main btn-small btn-danger" onclick="deleteReport('${r.id}')">លុប</button></div>
+        </div>`;
+    }).join('');
+}
+
+function displaySummary() {
+    const c = document.getElementById('summaryContent');
+    if (reports.length === 0) { c.innerHTML = `<div class="empty-state"><h3>មិនទាន់មានទិន្នន័យ</h3></div>`; return; }
+    const n = reports.length;
+    const avgTotal = Math.round(reports.reduce((s,r)=>s+r.totalStudents,0)/n);
+    const avgFemale = Math.round(reports.reduce((s,r)=>s+(r.totalFemaleStudents||0),0)/n);
+    const totalNew = reports.reduce((s,r)=>s+(r.newStudents?.length||0),0);
+    const totalLeft = reports.reduce((s,r)=>s+(r.leftStudents?.length||0),0);
+    c.innerHTML = `<div class="summary-grid-stats">
+        <div class="summary-card"><h4>ចំនួនរបាយការណ៍</h4><div class="number">${n}</div></div>
+        <div class="summary-card"><h4>មធ្យមសិស្សសរុប</h4><div class="number">${avgTotal}</div></div>
+        <div class="summary-card"><h4>មធ្យមសិស្សស្រី</h4><div class="number">${avgFemale}</div></div>
+        <div class="summary-card"><h4>សរុបចូលថ្មី</h4><div class="number">${totalNew}</div></div>
+        <div class="summary-card"><h4>សរុបឈប់</h4><div class="number">${totalLeft}</div></div>
+    </div>`;
+}
+
+async function deleteReport(reportId) {
+    if (confirm('តើអ្នកប្រាកដថាចង់លុបរបាយការណ៍នេះ?')) {
+        reports = reports.filter(r=>r.id!=reportId);
+        await saveReports();
+        displayReports();
+    }
+}
+
+async function resetReportForm() {
+    if (!confirm('តើអ្នកប្រាកដចង់ clear form ទាំងអស់?')) return;
+    newStudentsArray=[]; leftStudentsArray=[]; trialStudentsArray=[]; newCareStudentsArray=[]; stopCareStudentsArray=[];
+    displayNewStudents(); displayLeftStudents(); displayNewCareStudents(); displayStopCareStudents();
+    document.getElementById('trialStudentsContainer').innerHTML='';
+    document.getElementById('trialStudentsTotal').value='0';
+    document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+    ['totalStudents','totalFemaleStudents','fullTimeStudents','fullTimeFemale','khmerOnlyTotal','khmerOnlyFemale','englishOnlyTotal','englishOnlyFemale','careServiceTotal','careServiceFemale'].forEach(id=>document.getElementById(id).value='0');
+    syncFemaleDisplay();
+    try { await window.storage.delete(FORM_STATE_KEY); } catch(e) {}
+    syncAttendanceToReport();
+}
+
+// ========== INIT ==========
+window.onload = async () => {
+    buildClassList();
+    const firstClass = Object.keys(studentData)[0];
+    if (firstClass) { selectedClassName = firstClass; renderStudents(firstClass); }
+    populateClassDropdowns();
+    document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+    await loadReports();
+    const savedState = await storageLoad(FORM_STATE_KEY);
+    if (savedState) {
+        await loadFormState();
+    } else {
+        syncAttendanceToReport();
+    }
+};
+</script>
+</body>
+</html>
